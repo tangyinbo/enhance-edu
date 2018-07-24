@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<importFile>
+	<startRowNo>1</startRowNo>
+	<filetype>xlsx</filetype>
+	<cell>
+		<number>0</number>
+		<key>index</key>
+		<cellType>string</cellType>
+		<nullble>0</nullble>
+	</cell>
+	<cell>
+		<number>1</number>
+		<key>float</key>
+		<cellType>string</cellType>
+		<nullble>1</nullble>
+	</cell>
+	<cell>
+		<number>2</number>
+		<key>string</key>
+		<cellType>String</cellType>
+		<nullble>1</nullble>
+	</cell>
+	<cell>
+		<number>3</number>
+		<key>date</key>
+		<cellType>string</cellType>
+		<nullble>1</nullble>
+	</cell>
+	<cell>
+		<number>4</number>
+		<key>bigdecimal</key>
+		<cellType>string</cellType>
+		<nullble>1</nullble>
+	</cell>
+	
+</importFile>
+

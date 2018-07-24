@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exportFile>
+    <fileName>tradeOrder</fileName>
+    <!--exportType 0:EXCEL2007,1:csv);
+     titile 导出展示的列title名
+       alias对应的别名，映射的字段名-->
+    <exportType>0</exportType>
+    <cell>
+        <title>你好</title>
+        <alias>index</alias>
+    </cell>
+    <cell>
+        <title>日期</title>
+        <alias>date</alias>
+    </cell>
+    <cell>
+        <title>洗好</title>
+        <alias>greet</alias>
+    </cell>
+    <cell>
+        <title>salary</title>
+        <alias>floats</alias>
+    </cell>
+    <cell>
+        <title>kakas</title>
+        <alias>dd</alias>
+    </cell>
+
+</exportFile>
+
