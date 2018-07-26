@@ -248,7 +248,7 @@ public class QRCodeUtil {
 //        String text = "https://www.baidu.com/";
 //        String imagePath = System.getProperty("user.dir") + "/data/1.jpg";
 
-        String[] fileNames = new String[]{"1.jpg", "2.jpg","3.jpg","4.png"};
+        String[] fileNames = new String[]{"6.jpg"};
         URL url = QRCodeUtil.class.getClassLoader().getResource("");
 
         for (String fileName : fileNames) {
@@ -257,7 +257,7 @@ public class QRCodeUtil {
             //验证图片是否含有二维码
             try {
                 String result = decode(destPath);
-                System.out.println(result);
+                System.out.println(result+"?t="+System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println(destPath + "不是二维码");
