@@ -5,15 +5,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 权重选举工具类
+ *
  * @Auther: Tangyinbo
  * @Date: 2018/7/26 22:39
  * @Description:
  */
-public class WeightElectHandler<E extends WeightElectHolder> {
+public class WeightElectScheduleHandler<E extends WeightHolder> {
     private int currentIndex = -1;// 上一次取数角标
     private int currentWeight = 0;// 当前调度的权值
     private int maxWeight = 0; // 最大权重
@@ -23,37 +25,61 @@ public class WeightElectHandler<E extends WeightElectHolder> {
     private CopyOnWriteArrayList<E> number; //待选举集合
     private boolean isInit;//是否进行了初始化
 
-    private WeightElectHandler(){}
+    private WeightElectScheduleHandler() {
+    }
 
-    public static void main(String[] args) {
-        CopyOnWriteArrayList<WeightServer> number = new CopyOnWriteArrayList<>();
-        number.add(new WeightServer("192.168.100.1",1));
-        number.add(new WeightServer("192.168.100.4",4));
-        number.add(new WeightServer("192.168.100.8",4));
-        WeightElectHandler handler = WeightElectHandler.of(number);
+    public static void main(String[] args) throws InterruptedException {
+        final CopyOnWriteArrayList<WeightServer> number = new CopyOnWriteArrayList<>();
+        final WeightServer weightServer = new WeightServer("192.168.100.8", 8);
+        number.add(new WeightServer("192.168.100.3", 3));
+        number.add(new WeightServer("192.168.100.4", 4));
+        final WeightServer weightServer24 = new WeightServer("192.168.100.24", 24);
+        number.add(weightServer24);
+        number.add(weightServer);
+        final WeightElectScheduleHandler handler = WeightElectScheduleHandler.of(number);
 
-        Map<String,Integer> counts = new HashMap<>();
-        for(int i=0;i<100;i++){
-            WeightServer server = (WeightServer) handler.get();
-            int weight = server.getWeight();
+        final Map<String, Integer> counts = new ConcurrentHashMap<>();
 
-            String key = server.getIp()+":"+server.getWeight();
+        for (int i = 0; i < 3; i++) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < 100; i++) {
+                        WeightServer server = (WeightServer) handler.get();
+                        int weight = server.getWeight();
 
-            if(counts.containsKey(key)){
-                counts.put(key,counts.get(key)+1);
-            }else{
-                counts.put(key,1);
-            }
+                        //动态添加选举对象
+                        if (i == 20) {
+                            number.add(new WeightServer("192.168.100.12", 12));
+                        }
+                        //动态删除选举对象
+                        if (i == 70) {
+                            number.remove(weightServer);
+                        }
+                        String key = server.getIp() + ":" + server.getWeight();
+                        if (counts.containsKey(key)) {
+                            counts.put(key, counts.get(key) + 1);
+                        } else {
+                            counts.put(key, 1);
+                        }
+                        //动态修改权重
+                        if(i ==10){
+                            weightServer24.setWeight(2);
+                        }
+                    }
+                }
+            });
+            t.start();
+            t.join();
         }
-
         System.out.println(counts);
     }
 
-    public static <E extends WeightElectHolder> WeightElectHandler of(CopyOnWriteArrayList<E> number){
-        if(number == null || number.size() == 0){
+    public static <E extends WeightHolder> WeightElectScheduleHandler of(CopyOnWriteArrayList<E> number) {
+        if (number == null || number.size() == 0) {
             throw new IllegalArgumentException("weight elect number can not be null.");
         }
-        WeightElectHandler handler = new WeightElectHandler();
+        WeightElectScheduleHandler handler = new WeightElectScheduleHandler();
         handler.setNumber(number);
         handler.init();
         return handler;
@@ -62,7 +88,7 @@ public class WeightElectHandler<E extends WeightElectHolder> {
     /**
      * 添加成员
      */
-    public void addNumber(E e){
+    public void addNumber(E e) {
         checkIsinit();
         this.number.add(e);
         this.init();
@@ -71,7 +97,7 @@ public class WeightElectHandler<E extends WeightElectHolder> {
     /**
      * 删除成员
      */
-    public void removeNumber(E e){
+    public void removeNumber(E e) {
         checkIsinit();
         this.number.remove(e);
         this.init();
@@ -143,8 +169,8 @@ public class WeightElectHandler<E extends WeightElectHolder> {
                 if (currentWeight <= 0) {
                     currentWeight = maxWeight;
                     if (currentWeight == 0) {
-                        //此场景不会发生
-                        return null;
+                        //没有可选举的成员
+                        throw new IllegalStateException("no can elect number.");
                     }
                 }
             }
@@ -153,7 +179,6 @@ public class WeightElectHandler<E extends WeightElectHolder> {
             }
         }
     }
-
 
 
     /**
@@ -171,19 +196,24 @@ public class WeightElectHandler<E extends WeightElectHolder> {
         maxWeight = getMaxWeightForServers(number);
         //获取最大公约数
         gcdWeight = getGCDForServers(number);
+        //设置权重调度句柄
+        for (WeightHolder weightHolder : number) {
+            weightHolder.setWeightElectScheduleHandler(this);
+        }
     }
 
     /**
      * 检查是否已初始化
      */
-    private void checkIsinit(){
-        if(!isInit){
+    private void checkIsinit() {
+        if (!isInit) {
             throw new IllegalStateException("Please first init the object!");
         }
     }
 
     /**
      * 此方法请不要随意调用
+     *
      * @param number
      */
     void setNumber(CopyOnWriteArrayList<E> number) {

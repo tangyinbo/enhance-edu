@@ -5,7 +5,7 @@ package com.cowboy.utils.weight;
  * @Date: 2018/7/26 23:08
  * @Description:
  */
-public class WeightServer extends WeightElectHolder {
+public class WeightServer extends WeightHolder {
     private String ip;
 
     public WeightServer(String ip, int weight) {
