@@ -30,47 +30,36 @@ public class WeightElectScheduleHandler<E extends WeightHolder> {
 
     public static void main(String[] args) throws InterruptedException {
         final CopyOnWriteArrayList<WeightServer> number = new CopyOnWriteArrayList<>();
-        final WeightServer weightServer = new WeightServer("192.168.100.8", 8);
-        number.add(new WeightServer("192.168.100.3", 3));
+        number.add(new WeightServer("192.168.100.2", 2));
         number.add(new WeightServer("192.168.100.4", 4));
-        final WeightServer weightServer24 = new WeightServer("192.168.100.24", 24);
-        number.add(weightServer24);
-        number.add(weightServer);
+        number.add(new WeightServer("192.168.100.14", 4));
+        number.add(new WeightServer("192.168.100.8", 8));
         final WeightElectScheduleHandler handler = WeightElectScheduleHandler.of(number);
 
         final Map<String, Integer> counts = new ConcurrentHashMap<>();
 
-        for (int i = 0; i < 3; i++) {
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < 100; i++) {
-                        WeightServer server = (WeightServer) handler.get();
-                        int weight = server.getWeight();
 
-                        //动态添加选举对象
-                        if (i == 20) {
+        for (int i = 0; i < 100; i++) {
+            WeightServer server = (WeightServer) handler.get();
+            int weight = server.getWeight();
+            //动态添加选举对象
+                     /*   if (i == 20) {
                             number.add(new WeightServer("192.168.100.12", 12));
-                        }
-                        //动态删除选举对象
-                        if (i == 70) {
+                        }*/
+            //动态删除选举对象
+                    /*    if (i == 70) {
                             number.remove(weightServer);
-                        }
-                        String key = server.getIp() + ":" + server.getWeight();
-                        if (counts.containsKey(key)) {
-                            counts.put(key, counts.get(key) + 1);
-                        } else {
-                            counts.put(key, 1);
-                        }
-                        //动态修改权重
+                        }*/
+            String key = server.getIp() + ":" + server.getWeight();
+            if (counts.containsKey(key)) {
+                counts.put(key, counts.get(key) + 1);
+            } else {
+                counts.put(key, 1);
+            }
+                        /*//动态修改权重
                         if(i ==10){
                             weightServer24.setWeight(2);
-                        }
-                    }
-                }
-            });
-            t.start();
-            t.join();
+                        }*/
         }
         System.out.println(counts);
     }
